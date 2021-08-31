@@ -1,0 +1,24 @@
+# permissions for end users to edit scalablepods.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: scalablepod-editor-role
+rules:
+- apiGroups:
+  - scalable.scalablepod.tutorial.io
+  resources:
+  - scalablepods
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - scalable.scalablepod.tutorial.io
+  resources:
+  - scalablepods/status
+  verbs:
+  - get

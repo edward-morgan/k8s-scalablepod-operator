@@ -1,9 +1,0 @@
-apiVersion: "stable.example.com/v1"
-kind: ScalablePod
-metadata:
-  name: test-sp
-spec:
-  boundPodName: ""
-  state: "Inactive"
-  maxWaitingTimeSec: 10
-  

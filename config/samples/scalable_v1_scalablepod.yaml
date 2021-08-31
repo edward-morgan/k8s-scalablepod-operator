@@ -1,0 +1,7 @@
+apiVersion: scalable.scalablepod.tutorial.io/v1
+kind: ScalablePod
+metadata:
+  name: scalablepod-sample
+spec:
+  # Add fields here
+  foo: bar
