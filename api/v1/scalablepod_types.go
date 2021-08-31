@@ -24,8 +24,9 @@ import (
 // 1. Active - currently in use
 // 2. Inactive - not bound to a Pod, requires spinning up
 type SPStatus string
+
 const (
-	SPActive SPStatus = "Active"
+	SPActive   SPStatus = "Active"
 	SPInactive SPStatus = "Inactive"
 )
 
