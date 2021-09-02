@@ -17,12 +17,12 @@ limitations under the License.
 package main
 
 import (
+	"context"
 	"flag"
+	"fmt"
+	"log"
+	"net/http"
 	"os"
-
-	// Import all Kubernetes client auth plugins (e.g. Azure, GCP, OIDC, etc.)
-	// to ensure that exec-entrypoint and run can make use of them.
-	_ "k8s.io/client-go/plugin/pkg/client/auth"
 
 	"k8s.io/apimachinery/pkg/runtime"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
@@ -78,13 +78,21 @@ func main() {
 		os.Exit(1)
 	}
 
-	if err = (&controllers.ScalablePodReconciler{
+	reconciler := &controllers.ScalablePodReconciler{
 		Client: mgr.GetClient(),
 		Scheme: mgr.GetScheme(),
-	}).SetupWithManager(mgr); err != nil {
+	}
+	if err = reconciler.SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "ScalablePod")
 		os.Exit(1)
 	}
+	// if err = (&controllers.ScalablePodReconciler{
+	// 	Client: mgr.GetClient(),
+	// 	Scheme: mgr.GetScheme(),
+	// }).SetupWithManager(mgr); err != nil {
+	// 	setupLog.Error(err, "unable to create controller", "controller", "ScalablePod")
+	// 	os.Exit(1)
+	// }
 	//+kubebuilder:scaffold:builder
 
 	if err := mgr.AddHealthzCheck("healthz", healthz.Ping); err != nil {
@@ -96,9 +104,34 @@ func main() {
 		os.Exit(1)
 	}
 
+	http.HandleFunc("/", RequestWrapper(reconciler))
+	go http.ListenAndServe("localhost:19090", nil)
+
 	setupLog.Info("starting manager")
 	if err := mgr.Start(ctrl.SetupSignalHandler()); err != nil {
 		setupLog.Error(err, "problem running manager")
 		os.Exit(1)
+	}
+}
+
+/* When the reconciler receives an HTTP request to schedule a ScalablePod, this function handles the process of
+ * choosing which ScalablePod should be activated.
+ */
+func RequestWrapper(reconciler *controllers.ScalablePodReconciler) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		scalablePods := &scalablev1.ScalablePodList{}
+		reconciler.Client.List(r.Context(), scalablePods)
+		fmt.Println("Found " + fmt.Sprintf("%d", len(scalablePods.Items)) + " ScalablePods.")
+		// Use round-robin scheduling to spin up a new ScalablePod
+		for _, sp := range scalablePods.Items {
+			if sp.Status.Status != nil && *sp.Status.Status == scalablev1.SPInactive {
+				log.Printf("Found suitable Inactive ScalablePod with name: `%s` \n", sp.Name)
+				sp.Spec.Requested = true
+				if err := reconciler.Client.Update(context.Background(), &sp); err != nil {
+					// TODO: Implement additional status codes (ex. if no ScalablePods are currently available)
+					w.WriteHeader(http.StatusBadRequest)
+				}
+			}
+		}
 	}
 }

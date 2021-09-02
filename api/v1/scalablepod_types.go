@@ -35,29 +35,31 @@ type ScalablePodSpec struct {
 	// +kubebuilder:validation:Minimum=0
 
 	// Maximum time to wait between work before shutting down.
-	MaxReadyTimeSec int32 `json:"maxReadyTime"`
+	MaxReadyTimeSec int32 `json:"maxReadyTimeSec"`
 
 	PodImageName string `json:"podImageName"`
 
 	PodImageTag string `json:"podImageTag"`
+
+	Requested bool `json:"requested"`
 }
 
 // ScalablePodStatus defines the observed state of ScalablePod
 type ScalablePodStatus struct {
 	// The current status of the ScalablePod
-	Status SPStatus `json:"status"`
+	Status *SPStatus `json:"status"`
 
 	// When the workspace was last started
-	StartedAt metav1.Time `json:"startedAd"`
+	StartedAt metav1.Time `json:"startedAt,omitempty"`
 
 	// Reference to the pod this ScalablePod is bound to, if any
-	BoundPod *metav1.ObjectMeta `json:"boundPod"`
+	BoundPod *metav1.ObjectMeta `json:"boundPod,omitempty"`
 }
 
+// ScalablePod is the Schema for the scalablepods API
 //+kubebuilder:object:root=true
 //+kubebuilder:subresource:status
-
-// ScalablePod is the Schema for the scalablepods API
+//+kubebuilder:resource:shortName=sp
 type ScalablePod struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
