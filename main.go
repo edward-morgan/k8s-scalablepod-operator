@@ -86,13 +86,6 @@ func main() {
 		setupLog.Error(err, "unable to create controller", "controller", "ScalablePod")
 		os.Exit(1)
 	}
-	// if err = (&controllers.ScalablePodReconciler{
-	// 	Client: mgr.GetClient(),
-	// 	Scheme: mgr.GetScheme(),
-	// }).SetupWithManager(mgr); err != nil {
-	// 	setupLog.Error(err, "unable to create controller", "controller", "ScalablePod")
-	// 	os.Exit(1)
-	// }
 	//+kubebuilder:scaffold:builder
 
 	if err := mgr.AddHealthzCheck("healthz", healthz.Ping); err != nil {
@@ -117,6 +110,7 @@ func main() {
 /* When the reconciler receives an HTTP request to schedule a ScalablePod, this function handles the process of
  * choosing which ScalablePod should be activated.
  */
+//TODO: Reconciler isn't needed, just a Client
 func RequestWrapper(reconciler *controllers.ScalablePodReconciler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		scalablePods := &scalablev1.ScalablePodList{}
