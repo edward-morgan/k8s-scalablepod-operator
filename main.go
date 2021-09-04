@@ -120,12 +120,18 @@ func RequestWrapper(reconciler *controllers.ScalablePodReconciler) http.HandlerF
 		for _, sp := range scalablePods.Items {
 			if sp.Status.Status != nil && *sp.Status.Status == scalablev1.SPInactive {
 				log.Printf("Found suitable Inactive ScalablePod with name: `%s` \n", sp.Name)
-				sp.Spec.Requested = true
-				if err := reconciler.Client.Update(context.Background(), &sp); err != nil {
+				sp.Status.Requested = true
+				if err := reconciler.Status().Update(context.Background(), &sp); err != nil {
 					// TODO: Implement additional status codes (ex. if no ScalablePods are currently available)
 					w.WriteHeader(http.StatusBadRequest)
+					return
 				}
+				w.WriteHeader(http.StatusAccepted)
+				return
 			}
 		}
+		// If no resources are available, return a 400
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("All resources in use. Try again later.\n"))
 	}
 }

@@ -40,8 +40,6 @@ type ScalablePodSpec struct {
 	PodImageName string `json:"podImageName"`
 
 	PodImageTag string `json:"podImageTag"`
-
-	Requested bool `json:"requested"`
 }
 
 // ScalablePodStatus defines the observed state of ScalablePod
@@ -53,7 +51,15 @@ type ScalablePodStatus struct {
 	StartedAt metav1.Time `json:"startedAt,omitempty"`
 
 	// Reference to the pod this ScalablePod is bound to, if any
-	BoundPod *metav1.ObjectMeta `json:"boundPod,omitempty"`
+	// Can't use types.NamespacedName because it isn't json-annotated
+	BoundPod *NamespacedName `json:"boundPod,omitempty"`
+
+	Requested bool `json:"requested"`
+}
+
+type NamespacedName struct {
+	Namespace string `json:"namespace"`
+	Name      string `json:"name"`
 }
 
 // ScalablePod is the Schema for the scalablepods API

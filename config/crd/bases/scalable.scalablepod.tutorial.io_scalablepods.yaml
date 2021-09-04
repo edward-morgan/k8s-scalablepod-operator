@@ -4,7 +4,7 @@ apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
-    controller-gen.kubebuilder.io/version: v0.4.1
+    controller-gen.kubebuilder.io/version: v0.6.2
   creationTimestamp: null
   name: scalablepods.scalable.scalablepod.tutorial.io
 spec:
@@ -47,21 +47,28 @@ spec:
                 type: string
               podImageTag:
                 type: string
-              requested:
-                type: boolean
             required:
             - maxReadyTimeSec
             - podImageName
             - podImageTag
-            - requested
             type: object
           status:
             description: ScalablePodStatus defines the observed state of ScalablePod
             properties:
               boundPod:
                 description: Reference to the pod this ScalablePod is bound to, if
-                  any
+                  any Can't use types.NamespacedName because it isn't json-annotated
+                properties:
+                  name:
+                    type: string
+                  namespace:
+                    type: string
+                required:
+                - name
+                - namespace
                 type: object
+              requested:
+                type: boolean
               startedAt:
                 description: When the workspace was last started
                 format: date-time
@@ -70,6 +77,7 @@ spec:
                 description: The current status of the ScalablePod
                 type: string
             required:
+            - requested
             - status
             type: object
         type: object

@@ -61,10 +61,25 @@ func (r *ScalablePodReconciler) Reconcile(ctx context.Context, req ctrl.Request)
 		*scalablePod.Status.Status = scalablev1.SPInactive
 		if err := r.Status().Update(ctx, &scalablePod); err != nil {
 			log.Println("Unable to update ScalablePod status")
-			return ctrl.Result{}, err
+			return ctrl.Result{Requeue: true}, err
 		}
-		// Don't requeue
-		return ctrl.Result{}, nil
+	case *scalablePod.Status.Status == scalablev1.SPInactive:
+		log.Printf("State: %s\n", scalablev1.SPInactive)
+		if scalablePod.Status.Requested { // If someone has requested a ScalablePod, spin one up
+			err := r.startAndBindPodTo(&scalablePod, ctx)
+			if err != nil {
+				log.Println("Unable to bind new pod to ScalablePod")
+				return ctrl.Result{Requeue: true}, err
+			}
+			log.Printf("ScalablePod Pod namespaced name after startAndBindPodTo: `%s/%s`", scalablePod.Status.BoundPod.Namespace, scalablePod.Status.BoundPod.Name)
+			*scalablePod.Status.Status = scalablev1.SPActive
+			if err = r.Status().Update(ctx, &scalablePod); err != nil {
+				log.Println("Unable to update ScalablePod status")
+				return ctrl.Result{Requeue: true}, err
+			}
+			shutdownDuration, _ := time.ParseDuration(fmt.Sprintf("%ds", scalablePod.Spec.MaxReadyTimeSec))
+			return ctrl.Result{RequeueAfter: shutdownDuration}, nil
+		}
 	case *scalablePod.Status.Status == scalablev1.SPActive:
 		log.Printf("State: %s\n", scalablev1.SPActive)
 		shutdownDuration, _ := time.ParseDuration(fmt.Sprintf("%ds", scalablePod.Spec.MaxReadyTimeSec))
@@ -75,44 +90,17 @@ func (r *ScalablePodReconciler) Reconcile(ctx context.Context, req ctrl.Request)
 				log.Println("Unable to delete bound pod")
 				return ctrl.Result{Requeue: true}, err
 			}
-			if err := r.Status().Update(ctx, &scalablePod); err != nil {
-				log.Println("Unable to update ScalablePod status")
-				return ctrl.Result{}, err
-			}
-		}
-		// Don't requeue
-		return ctrl.Result{}, nil
-	case *scalablePod.Status.Status == scalablev1.SPInactive:
-		log.Printf("State: %s\n", scalablev1.SPInactive)
-		if scalablePod.Spec.Requested { // If someone has requested a ScalablePod, spin one up
-			err := r.startAndBindPodTo(&scalablePod, ctx)
-			if err != nil {
-				log.Println("Unable to bind new pod to ScalablePod")
-				return ctrl.Result{Requeue: true}, err
-			}
-			shutdownDuration, _ := time.ParseDuration(fmt.Sprintf("%ds", scalablePod.Spec.MaxReadyTimeSec))
-			if err := r.Status().Update(ctx, &scalablePod); err != nil {
-				log.Println("Unable to update ScalablePod status")
-				return ctrl.Result{}, err
-			}
-			return ctrl.Result{RequeueAfter: shutdownDuration}, nil
-		} else if scalablePod.Status.BoundPod != nil { // If there's still a bound pod, remove it
-			err := r.deleteBoundPod(&scalablePod, ctx)
-			if err != nil {
-				log.Println("Unable to delete bound pod")
-				return ctrl.Result{Requeue: true}, err
-			}
+			scalablePod.Status.Requested = false
+			*scalablePod.Status.Status = scalablev1.SPInactive
+			log.Printf("Changing status to %s\n", scalablev1.SPInactive)
 			if err = r.Status().Update(ctx, &scalablePod); err != nil {
 				log.Println("Unable to update ScalablePod status")
-				return ctrl.Result{}, err
+				return ctrl.Result{Requeue: true}, err
 			}
-			return ctrl.Result{}, nil
 		}
 	}
-
-	// If somehow the request flowed through without being handled, requeue it
-	log.Println("WARNING: Request was not reconciled. Requeueing...")
-	return ctrl.Result{Requeue: true}, nil
+	// Don't requeue
+	return ctrl.Result{}, nil
 }
 
 // SetupWithManager sets up the controller with the Manager.
@@ -126,7 +114,7 @@ func (r *ScalablePodReconciler) SetupWithManager(mgr ctrl.Manager) error {
 func (r *ScalablePodReconciler) deleteBoundPod(scalablePod *scalablev1.ScalablePod, ctx context.Context) error {
 	var pod corev1.Pod
 	r.Get(ctx, types.NamespacedName{Namespace: scalablePod.Status.BoundPod.Namespace, Name: scalablePod.Status.BoundPod.Name}, &pod)
-	log.Printf("Removing bound pod w/name %s from inactive ScalablePod\n", pod.Name)
+	log.Printf("Removing bound pod w/name `%s` from inactive ScalablePod\n", pod.Name)
 	err := r.Client.Delete(ctx, pod.DeepCopy())
 	if err != nil {
 		return err
@@ -137,7 +125,7 @@ func (r *ScalablePodReconciler) deleteBoundPod(scalablePod *scalablev1.ScalableP
 
 func (r *ScalablePodReconciler) startAndBindPodTo(scalablePod *scalablev1.ScalablePod, ctx context.Context) error {
 	podName := uuid.New().String()
-	pod := &corev1.Pod{
+	pod := corev1.Pod{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      podName,
 			Namespace: "default",
@@ -158,12 +146,11 @@ func (r *ScalablePodReconciler) startAndBindPodTo(scalablePod *scalablev1.Scalab
 	}
 	// Create the Pod
 	log.Printf("Creating pod `%s`\n", pod.Name)
-	if err := r.Client.Create(ctx, pod); err != nil {
+	if err := r.Client.Create(ctx, &pod); err != nil {
 		log.Printf("Failed to create pod for requested ScalablePod `%s/%s`\n", scalablePod.Namespace, scalablePod.Name)
 		return err
 	}
-	scalablePod.Status.BoundPod = &pod.ObjectMeta
+	scalablePod.Status.BoundPod = &scalablev1.NamespacedName{Namespace: pod.Namespace, Name: pod.Name}
 	scalablePod.Status.StartedAt = metav1.Now()
-	*scalablePod.Status.Status = scalablev1.SPActive
 	return nil
 }
