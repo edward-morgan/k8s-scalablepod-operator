@@ -42,8 +42,8 @@ type ScalablePodReconciler struct {
 //+kubebuilder:rbac:groups=scalable.scalablepod.tutorial.io,resources=scalablepods,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=scalable.scalablepod.tutorial.io,resources=scalablepods/status,verbs=get;update;patch
 //+kubebuilder:rbac:groups=scalable.scalablepod.tutorial.io,resources=scalablepods/finalizers,verbs=update
-//+kubebuilder:rbac:groups=batch,resources=jobs,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups=batch,resources=jobs/status,verbs=get
+//+kubebuilder:rbac:groups=core,resources=pods,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=core,resources=pods/status,verbs=get
 
 func (r *ScalablePodReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	var scalablePod scalablev1.ScalablePod
@@ -107,7 +107,7 @@ func (r *ScalablePodReconciler) Reconcile(ctx context.Context, req ctrl.Request)
 func (r *ScalablePodReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&scalablev1.ScalablePod{}).
-		Owns(&corev1.Pod{}). // TODO: Does this bind our controller to all pods?
+		// Owns(&corev1.Pod{}).
 		Complete(r)
 }
 
