@@ -52,6 +52,8 @@ func main() {
 	var metricsAddr string
 	var enableLeaderElection bool
 	var probeAddr string
+	var operatorPort string
+	flag.StringVar(&operatorPort, "operator-port", "19090", "The port to start the HTTP request server on.")
 	flag.StringVar(&metricsAddr, "metrics-bind-address", ":8080", "The address the metric endpoint binds to.")
 	flag.StringVar(&probeAddr, "health-probe-bind-address", ":8081", "The address the probe endpoint binds to.")
 	flag.BoolVar(&enableLeaderElection, "leader-elect", false,
@@ -98,7 +100,7 @@ func main() {
 	}
 
 	http.HandleFunc("/", RequestWrapper(reconciler))
-	go http.ListenAndServe("localhost:19090", nil)
+	go http.ListenAndServe(fmt.Sprintf("0.0.0.0:%s", operatorPort), nil)
 
 	setupLog.Info("starting manager")
 	if err := mgr.Start(ctrl.SetupSignalHandler()); err != nil {
@@ -110,7 +112,6 @@ func main() {
 /* When the reconciler receives an HTTP request to schedule a ScalablePod, this function handles the process of
  * choosing which ScalablePod should be activated.
  */
-//TODO: Reconciler isn't needed, just a Client
 func RequestWrapper(reconciler *controllers.ScalablePodReconciler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		scalablePods := &scalablev1.ScalablePodList{}
@@ -122,16 +123,15 @@ func RequestWrapper(reconciler *controllers.ScalablePodReconciler) http.HandlerF
 				log.Printf("Found suitable Inactive ScalablePod with name: `%s` \n", sp.Name)
 				sp.Status.Requested = true
 				if err := reconciler.Status().Update(context.Background(), &sp); err != nil {
-					// TODO: Implement additional status codes (ex. if no ScalablePods are currently available)
-					w.WriteHeader(http.StatusBadRequest)
+					w.WriteHeader(http.StatusInternalServerError)
 					return
 				}
-				w.WriteHeader(http.StatusAccepted)
+				w.WriteHeader(http.StatusOK)
 				return
 			}
 		}
-		// If no resources are available, return a 400
-		w.WriteHeader(http.StatusBadRequest)
+		// If no resources are available, return a 404
+		w.WriteHeader(http.StatusNotFound)
 		w.Write([]byte("All resources in use. Try again later.\n"))
 	}
 }

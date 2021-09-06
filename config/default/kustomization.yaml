@@ -1,5 +1,5 @@
 # Adds namespace to all resources.
-namespace: k8s-operator-example-system
+namespace: k8s-operator-example
 
 # Value of this field is prepended to the
 # names of all resources, e.g. a deployment named
