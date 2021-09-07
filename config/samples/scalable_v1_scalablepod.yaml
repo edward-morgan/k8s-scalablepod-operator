@@ -1,7 +1,8 @@
-apiVersion: scalable.scalablepod.tutorial.io/v1
+apiVersion: "scalable.scalablepod.tutorial.io/v1"
 kind: ScalablePod
 metadata:
-  name: scalablepod-sample
+  name: scalablepod5
 spec:
-  # Add fields here
-  foo: bar
+  podImageName: "busybox"
+  podImageTag: "latest"
+  maxActiveTimeSec: 10

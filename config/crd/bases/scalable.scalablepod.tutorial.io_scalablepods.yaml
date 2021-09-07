@@ -25,6 +25,9 @@ spec:
     - jsonPath: .status.startedAt
       name: Started At
       type: string
+    - jsonPath: .spec.maxActiveTimeSec
+      name: Max Active Time
+      type: string
     name: v1
     schema:
       openAPIV3Schema:
@@ -45,8 +48,9 @@ spec:
           spec:
             description: ScalablePodSpec defines the desired state of ScalablePod
             properties:
-              maxReadyTimeSec:
-                description: Maximum time to wait between work before shutting down.
+              maxActiveTimeSec:
+                description: Maximum time to wait between after transitioning to Active
+                  before shutting down.
                 format: int32
                 minimum: 0
                 type: integer
@@ -55,7 +59,7 @@ spec:
               podImageTag:
                 type: string
             required:
-            - maxReadyTimeSec
+            - maxActiveTimeSec
             - podImageName
             - podImageTag
             type: object

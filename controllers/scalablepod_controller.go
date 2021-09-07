@@ -77,12 +77,12 @@ func (r *ScalablePodReconciler) Reconcile(ctx context.Context, req ctrl.Request)
 				log.Println("Unable to update ScalablePod status")
 				return ctrl.Result{Requeue: true}, err
 			}
-			shutdownDuration, _ := time.ParseDuration(fmt.Sprintf("%ds", scalablePod.Spec.MaxReadyTimeSec))
+			shutdownDuration, _ := time.ParseDuration(fmt.Sprintf("%ds", scalablePod.Spec.MaxActiveTimeSec))
 			return ctrl.Result{RequeueAfter: shutdownDuration}, nil
 		}
 	case *scalablePod.Status.Status == scalablev1.SPActive:
 		log.Printf("State: %s\n", scalablev1.SPActive)
-		shutdownDuration, _ := time.ParseDuration(fmt.Sprintf("%ds", scalablePod.Spec.MaxReadyTimeSec))
+		shutdownDuration, _ := time.ParseDuration(fmt.Sprintf("%ds", scalablePod.Spec.MaxActiveTimeSec))
 		shutdownTime := scalablePod.Status.StartedAt.Add(shutdownDuration)
 		if shutdownTime.Before(metav1.Now().Time) { // We need to spin down this ScalablePod
 			err := r.deleteBoundPod(&scalablePod, ctx)

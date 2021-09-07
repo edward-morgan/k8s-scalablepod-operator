@@ -34,8 +34,8 @@ const (
 type ScalablePodSpec struct {
 	// +kubebuilder:validation:Minimum=0
 
-	// Maximum time to wait between work before shutting down.
-	MaxReadyTimeSec int32 `json:"maxReadyTimeSec"`
+	// Maximum time to wait between after transitioning to Active before shutting down.
+	MaxActiveTimeSec int32 `json:"maxActiveTimeSec"`
 
 	PodImageName string `json:"podImageName"`
 
@@ -69,6 +69,7 @@ type NamespacedName struct {
 //+kubebuilder:resource:shortName=sp
 // +kubebuilder:printcolumn:name="State",type=string,JSONPath=`.status.status`
 // +kubebuilder:printcolumn:name="Started At",type=string,JSONPath=`.status.startedAt`
+// +kubebuilder:printcolumn:name="Max Active Time",type=string,JSONPath=`.spec.maxActiveTimeSec`
 type ScalablePod struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
