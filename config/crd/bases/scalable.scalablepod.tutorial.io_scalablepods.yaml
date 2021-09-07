@@ -68,6 +68,7 @@ spec:
                 - namespace
                 type: object
               requested:
+                description: Whether or not this ScalablePod is requested to activate.
                 type: boolean
               startedAt:
                 description: When the workspace was last started

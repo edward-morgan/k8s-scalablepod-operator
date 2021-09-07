@@ -99,7 +99,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	http.HandleFunc("/", RequestWrapper(reconciler))
+	http.HandleFunc("/request", RequestWrapper(reconciler))
 	go http.ListenAndServe(fmt.Sprintf("0.0.0.0:%s", operatorPort), nil)
 
 	setupLog.Info("starting manager")

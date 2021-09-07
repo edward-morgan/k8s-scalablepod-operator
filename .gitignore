@@ -1,2 +1,5 @@
 .vscode/
 bin/
+*/bin/
+testbin/
+cover.out

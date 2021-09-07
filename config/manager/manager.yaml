@@ -12,6 +12,7 @@ metadata:
   namespace: system
   labels:
     control-plane: controller-manager
+    app: controller-manager
 spec:
   selector:
     matchLabels:
@@ -30,6 +31,8 @@ spec:
         args:
         - --leader-elect
         image: controller:latest
+        ports:
+        - containerPort: 19090
         name: manager
         securityContext:
           allowPrivilegeEscalation: false

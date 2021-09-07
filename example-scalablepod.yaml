@@ -1,0 +1,8 @@
+apiVersion: "scalable.scalablepod.tutorial.io/v1"
+kind: ScalablePod
+metadata:
+  name: scalablepod5
+spec:
+  podImageName: "busybox"
+  podImageTag: "latest"
+  maxReadyTimeSec: 10

@@ -10,6 +10,7 @@ import (
 
 var operatorDnsName string
 var operatorPort string
+var operatorPath string
 var listenerPort string
 
 /* Start up an HTTP server on <PORT> that, when a external request is received, POSTS to OPERATOR_DNS_NAME:OPERATOR_PORT to start a ScalablePod.
@@ -17,17 +18,21 @@ var listenerPort string
 func main() {
 	operatorDnsName = os.Getenv("OPERATOR_DNS_NAME")
 	operatorPort = os.Getenv("OPERATOR_PORT")
+	operatorPath = os.Getenv("OPERATOR_PATH")
 	listenerPort = os.Getenv("PORT")
+	log.Printf("Starting server on localhost:%s.\n", listenerPort)
 	http.HandleFunc("/", Handler)
-	http.ListenAndServe(fmt.Sprintf("http://0.0.0.0:%s", listenerPort), nil)
+	log.Fatal(http.ListenAndServe(fmt.Sprintf("0.0.0.0:%s", listenerPort), nil))
 }
 
 func Handler(w http.ResponseWriter, req *http.Request) {
 	log.Println("Received request for ScalablePod.")
-	resp, err := http.Post(fmt.Sprintf("http://%s:%s", operatorDnsName, operatorPort), "application/text", strings.NewReader("Request"))
+	resp, err := http.Post(fmt.Sprintf("http://%s:%s%s", operatorDnsName, operatorPort, operatorPath), "application/text", strings.NewReader("Request"))
 	if err != nil {
+		log.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte("Could not contact operator."))
+		return
 	}
 	switch resp.StatusCode {
 	case http.StatusOK:

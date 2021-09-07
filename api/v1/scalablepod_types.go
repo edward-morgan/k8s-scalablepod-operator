@@ -54,6 +54,7 @@ type ScalablePodStatus struct {
 	// Can't use types.NamespacedName because it isn't json-annotated
 	BoundPod *NamespacedName `json:"boundPod,omitempty"`
 
+	// Whether or not this ScalablePod is requested to activate.
 	Requested bool `json:"requested"`
 }
 

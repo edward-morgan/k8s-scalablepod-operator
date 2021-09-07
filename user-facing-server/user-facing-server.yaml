@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user-facing-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: user-facing-server
+  template:
+    metadata:
+      labels:
+        app: user-facing-server
+    spec:
+      containers:
+      - name: main
+        image: user-facing-server:0.1
+        command:
+        - /user-facing-server
+        env:
+        - name: OPERATOR_DNS_NAME
+          value: "controller-manager-service.k8s-operator-example.svc.cluster.local"
+        - name: OPERATOR_PORT
+          value: "19090"
+        - name: OPERATOR_PATH
+          value: "/request"
+        - name: PORT
+          value: "8080"
+        ports:
+        - containerPort: 8080
+          name: http
