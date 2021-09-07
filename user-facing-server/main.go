@@ -31,21 +31,21 @@ func Handler(w http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		log.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte("Could not contact operator."))
+		w.Write([]byte("Could not contact operator.\n"))
 		return
 	}
 	switch resp.StatusCode {
 	case http.StatusOK:
 		log.Println("Received 200 from operator.")
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("Spinning up ScalablePod..."))
+		w.Write([]byte("Spinning up ScalablePod...\n"))
 	case http.StatusInternalServerError:
 		log.Println("Server failed to schedule.")
 		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte("Spinning up ScalablePod..."))
+		w.Write([]byte("Spinning up ScalablePod...\n"))
 	case http.StatusNotFound:
 		log.Println("No resources available to schedule.")
 		w.WriteHeader(http.StatusNotFound)
-		w.Write([]byte("No resources currently available. Try again later."))
+		w.Write([]byte("No resources currently available. Try again later.\n"))
 	}
 }

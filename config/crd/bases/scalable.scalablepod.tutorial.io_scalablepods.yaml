@@ -26,7 +26,10 @@ spec:
       name: Started At
       type: string
     - jsonPath: .spec.maxActiveTimeSec
-      name: Max Active Time
+      name: Max Active Sec
+      type: string
+    - jsonPath: .status.boundPod.name
+      name: Bound Pod
       type: string
     name: v1
     schema:
