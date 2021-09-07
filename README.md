@@ -10,7 +10,7 @@ This repo uses [kubebuilder](https://book.kubebuilder.io/) to  generate code for
 
 When in Kubernetes, two `Deployments` live in the the `k8s-operator-example` namespace: the `controller-manager` operator and an externally-exposed `user-facing-server` that listens on a given port. If hit, it POSTs a request to the operator, which starts a `Pod` and (for now) round-robin-schedules one `ScalablePod` to bind to it. After the TTL has expired, the operator automatically terminates the bound `Pod` and resets the `ScalablePod`'s status to `Inactive`. Here's a simplified state machine laying out operation:
 
-TODO: Add state machine PNG
+![Deployment State Machine](./assets/statemachine.png)
 
 ## Building and Installing
 
