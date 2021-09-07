@@ -29,27 +29,39 @@ This repository has been built on Ubuntu 20.04 amd64 with the following versions
 ### Operator
 First, create a `kind` cluster:
 
-```kind create cluster```
+```
+kind create cluster
+```
 
 Next, to deploy the operator and user-facing server, switch contexts:
 
-```kubectl config set-context --current --namespace=k8s-operator-example```
+```
+kubectl config set-context --current --namespace=k8s-operator-example
+```
 
 Build the operator Docker:
 
-```make install docker-build IMG=controller:0.1```
+```
+make install docker-build IMG=controller:0.1
+```
 
 Load that image into `kind`:
 
-```kind load docker-image controller:0.1```
+```
+kind load docker-image controller:0.1
+```
 
 Deploy the operator and CRD, along with supporting components:
 
-```make deploy IMG=controller:0.1```
+```
+make deploy IMG=controller:0.1
+```
 
 Finally, make the operator deployment available inside the cluster:
 
-```kubectl apply -f controller-manager-service.yaml```
+```
+kubectl apply -f controller-manager-service.yaml
+```
 
 
 ### User-facing Server
@@ -64,9 +76,10 @@ kind load docker-image user-facing-server:0.1
 
 Finally, apply the deployment and external-facing service:
 
-```kubectl apply -f user-facing-server.yaml```
-
-```kubectl apply -f service.yaml```
+```
+kubectl apply -f user-facing-server.yaml
+kubectl apply -f service.yaml
+```
 
 ## Testing
 
@@ -87,11 +100,15 @@ To query the user-facing server (when in the kind cluster), do the following:
 
 To find the Node's IP address:
 
-```kc get nodes -owide -o=custom-columns=NAME:.metadata.name,INTERNAL-IP:.status.addresses[0].address```
+```
+kc get nodes -owide -o=custom-columns=NAME:.metadata.name,INTERNAL-IP:.status.addresses[0].address
+```
 
 To find the Node Port to hit:
 
-```kubectl get service -o=custom-columns=NAME:.metadata.name,NODE_PORT:.spec.ports[*].nodePort --field-selector metadata.name=user-facing-service```
+```
+kubectl get service -o=custom-columns=NAME:.metadata.name,NODE_PORT:.spec.ports[*].nodePort --field-selector metadata.name=user-facing-service
+```
 
 
 Then, to make a request to the system, simply run `curl HOST:PORT`.
