@@ -6,6 +6,10 @@ This repo centers around the `ScalablePod` CustomResourceDefinition, a (simplist
 
 This repo uses [kubebuilder](https://book.kubebuilder.io/) to  generate code for the CustomResourceDefinition and scaffold an operator for it.
 
+## Use Case
+
+Many deployments depend on stateless applications that can spin up and down as demand fluctuates. The process of scaling and load-balancing these deployments is a pain when done manually by Ops teams, but it can be automated by the Kubernetes operator pattern. While technologies like HPA, KNative, and KEDA do this very well in production environments, going through the steps of creating a simplistic version from scratch is pretty interesting and rewarding. 
+
 ## Deployment Overview
 
 When in Kubernetes, two `Deployments` live in the the `k8s-operator-example` namespace: the `controller-manager` operator and an externally-exposed `user-facing-server` that listens on a given port. If hit, it POSTs a request to the operator, which starts a `Pod` and (for now) round-robin-schedules one `ScalablePod` to bind to it. After the TTL has expired, the operator automatically terminates the bound `Pod` and resets the `ScalablePod`'s status to `Inactive`. Here's a simplified state machine laying out operation:
