@@ -1,4 +1,4 @@
-<mxfile host="app.diagrams.net" modified="2021-09-07T03:39:43.585Z" agent="5.0 (X11)" etag="ZG22asUycgCdW8M0EZOx" version="15.1.0" type="github">
+<mxfile host="app.diagrams.net" modified="2021-09-07T03:41:36.268Z" agent="5.0 (X11)" etag="GXWU5xuhbOkPuTtpA7Mt" version="15.1.0" type="github">
   <diagram id="qj4Yma7c2Yso2BFQxg3h" name="Page-1">
     <mxGraphModel dx="1658" dy="906" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
       <root>
@@ -15,12 +15,13 @@
         <mxCell id="3AmBEp3MIsFLN6E87J0Y-5" value="&lt;div&gt;Status:&lt;/div&gt;&lt;div&gt;&amp;lt;nil&amp;gt;&lt;br&gt;&lt;/div&gt;" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;" vertex="1" parent="1">
           <mxGeometry x="200" y="190" width="80" height="80" as="geometry" />
         </mxCell>
-        <mxCell id="3AmBEp3MIsFLN6E87J0Y-16" value="&lt;div&gt;&lt;u&gt;time.Now() &amp;gt; StartedAt + MaxActiveTimeSec&lt;/u&gt;&lt;/div&gt;" style="edgeStyle=orthogonalEdgeStyle;curved=1;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0;exitDx=0;exitDy=0;entryX=0;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="3AmBEp3MIsFLN6E87J0Y-6" target="3AmBEp3MIsFLN6E87J0Y-7">
-          <mxGeometry relative="1" as="geometry">
+        <mxCell id="3AmBEp3MIsFLN6E87J0Y-16" value="&lt;div&gt;&lt;u&gt;time.Now() &amp;gt; StartedAt + MaxActiveTimeSec&lt;/u&gt;&lt;/div&gt;&lt;div&gt;Status -&amp;gt; Inactive&lt;/div&gt;&lt;div&gt;Terminate BoundPod&lt;/div&gt;&lt;div&gt;BoundPod -&amp;gt; &amp;lt;nil&amp;gt;&lt;/div&gt;" style="edgeStyle=orthogonalEdgeStyle;curved=1;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0;exitDx=0;exitDy=0;entryX=0;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="3AmBEp3MIsFLN6E87J0Y-6" target="3AmBEp3MIsFLN6E87J0Y-7">
+          <mxGeometry x="0.0604" relative="1" as="geometry">
             <Array as="points">
               <mxPoint x="360" y="532" />
               <mxPoint x="360" y="258" />
             </Array>
+            <mxPoint as="offset" />
           </mxGeometry>
         </mxCell>
         <mxCell id="3AmBEp3MIsFLN6E87J0Y-6" value="&lt;div&gt;Status:&lt;/div&gt;&lt;div&gt;Active&lt;/div&gt;" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;" vertex="1" parent="1">
@@ -36,7 +37,7 @@
         </mxCell>
         <mxCell id="3AmBEp3MIsFLN6E87J0Y-17" value="&lt;div&gt;&lt;u&gt;Requested: true&lt;/u&gt;&lt;/div&gt;&lt;div&gt;Status -&amp;gt; Active&lt;/div&gt;&lt;div&gt;BoundPod -&amp;gt; &amp;lt;pod name&amp;gt;&lt;/div&gt;&lt;div&gt;StartedAt -&amp;gt; time.Now()&lt;br&gt;&lt;/div&gt;&lt;div&gt;Requeued after &amp;lt;MaxActiveTimeSec&amp;gt;&lt;br&gt;&lt;/div&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="3AmBEp3MIsFLN6E87J0Y-14">
           <mxGeometry x="-0.2354" relative="1" as="geometry">
-            <mxPoint y="24" as="offset" />
+            <mxPoint y="46" as="offset" />
           </mxGeometry>
         </mxCell>
         <mxCell id="3AmBEp3MIsFLN6E87J0Y-7" value="&lt;div&gt;Status:&lt;/div&gt;&lt;div&gt;Inactive&lt;br&gt;&lt;/div&gt;" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;" vertex="1" parent="1">
