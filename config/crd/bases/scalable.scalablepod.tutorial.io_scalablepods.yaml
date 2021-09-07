@@ -18,7 +18,14 @@ spec:
     singular: scalablepod
   scope: Namespaced
   versions:
-  - name: v1
+  - additionalPrinterColumns:
+    - jsonPath: .status.status
+      name: State
+      type: string
+    - jsonPath: .status.startedAt
+      name: Started At
+      type: string
+    name: v1
     schema:
       openAPIV3Schema:
         description: ScalablePod is the Schema for the scalablepods API

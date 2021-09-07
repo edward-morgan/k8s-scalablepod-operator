@@ -67,6 +67,8 @@ type NamespacedName struct {
 //+kubebuilder:object:root=true
 //+kubebuilder:subresource:status
 //+kubebuilder:resource:shortName=sp
+// +kubebuilder:printcolumn:name="State",type=string,JSONPath=`.status.status`
+// +kubebuilder:printcolumn:name="Started At",type=string,JSONPath=`.status.startedAt`
 type ScalablePod struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
